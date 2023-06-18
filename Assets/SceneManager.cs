@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using LightShaft.Scripts;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +9,17 @@ using UnityEngine.UI;
 public class SceneManager : MonoBehaviour
 {
     [SerializeField] TMP_Text countdownText;
+    [SerializeField]
+    private YoutubePlayer player;
+
     public GameObject startButton;
+    public Image imagePreview; // Reference to the UI image component
+    public RawImage cameraPreview;
+    public string youtubeURL;
+    public int youtubeTime;
+    public string musicClipName; // Name of the music clip to play
+    public string videoSavePath; // File path to save the recorded video
+
 
     private float countdownTime; // Time remaining for the countdown
     private bool isCounting; // Flag to track if countdown is active
@@ -15,10 +27,47 @@ public class SceneManager : MonoBehaviour
     private float fadeOutTimer;
     private float countdownDuration = 3f;
     private float fadeOutDuration = 1f;
+    private string idleCameraBackgroudColor = "606060FF";
+    private string activateCameraBackgroudColor = "FFFFFFFF";
+
+    private WebCamTexture webcamTexture; // Reference to the WebCamTexture component
+    private bool isRecording; // Flag to track if video recording is active
+    private bool cameraPlaying = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        //PrepareWebcam();
+    }
+
+    private void OnEnable()
+    {
+        //PrepareWebcam();
+        //StartCoroutine(WaitSystemDoSomething());
+    }
+
+    private void OnDisable()
+    {
+        ResetScene();
+    }
+
+    public void ResetScene()
+    {
+        player.StopAllCoroutines();
+        player.Stop();
+        countdownTime = countdownDuration;
+        countdownText.gameObject.SetActive(false);
+        startButton.SetActive(true);
+        isCounting = false;
+        isFadingOut = false;
+        isRecording = false;       
+        cameraPlaying = false;
+    }
+
+    private IEnumerator WaitSystemDoSomething()
+    {
+        // Wait for 1 second
+        yield return new WaitForSeconds(1);
     }
 
     // Update is called once per frame
@@ -58,13 +107,28 @@ public class SceneManager : MonoBehaviour
                 countdownText.color = new Color(countdownText.color.r, countdownText.color.g, countdownText.color.b, alpha);
             }
         }
+
+        if (isRecording)
+        {
+            // Continue recording video
+            // Add your video recording logic here
+        }
     }
 
     public void StartCountdown()
     {
+        //if (!webcamTexture)
+        //{
+        //    PrepareWebcam();
+        //}
+        //while (!webcamTexture.isPlaying && !cameraPlaying)
+        //{
+
+        //}
         startButton.SetActive(false);
         ResetTimer();
         isCounting = true;
+        //DisplayImageFromCamera();
     }
 
     private void PerformAction()
@@ -73,6 +137,9 @@ public class SceneManager : MonoBehaviour
         // Perform the desired action here after the countdown finishes
         countdownText.text = "Start!";
         FadeOutText();
+        //DisplayImageFromCamera();
+        PlayMusic();
+        StartVideoRecording();
     }
 
     private void FadeOutText()
@@ -87,5 +154,68 @@ public class SceneManager : MonoBehaviour
         countdownTime = countdownDuration;
         countdownText.text = "";
         countdownText.color = Color.white; // Reset text color to full opacity
+
+    }
+
+    private void DisplayImageFromCamera()
+    {
+        // Capture image from the user's camera and display it in the UI image component
+        if (webcamTexture != null && webcamTexture.isPlaying)
+        {
+            Color color;
+            ColorUtility.TryParseHtmlString(activateCameraBackgroudColor, out color);
+            imagePreview.GetComponent<Image>().color = color;
+            //Texture2D texture = new Texture2D(webcamTexture.width, webcamTexture.height);
+            //texture.SetPixels(webcamTexture.GetPixels());
+            //texture.Apply();
+            //imagePreview.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+            //webcamTexture.Stop();
+            cameraPreview.texture = webcamTexture;
+        }
+    }
+
+    private void PlayMusic()
+    {
+        PlayFromUrlFieldStartingAt(youtubeTime);
+    }
+
+    private void StartVideoRecording()
+    {
+        // Start recording the video
+        // Add your video recording logic here
+        isRecording = true;
+    }
+
+    public void PrepareWebcam()
+    {
+        webcamTexture = new WebCamTexture();
+        if (!webcamTexture.isPlaying)
+        {
+            webcamTexture.Play();
+            cameraPlaying = true;
+        }
+
+        //WebCamDevice[] devices = WebCamTexture.devices;
+        //if (devices.Length > 0)
+        //{
+        //    webcamTexture = new WebCamTexture(devices[0].name);
+        //    if (!webcamTexture.isPlaying)
+        //    {
+        //        webcamTexture.Play();
+        //        cameraPlaying = true;
+        //    }
+        //}
+    }
+
+    public void PlayFromUrlFieldStartingAt(int timePlaying)
+    {
+        Reset();
+        //Simple call to start playing starting from second. in this case 10 seconds
+        player.Play(youtubeURL, timePlaying);
+    }
+
+    private void Reset()
+    {
+        player.loadYoutubeUrlsOnly = false;
     }
 }
