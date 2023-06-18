@@ -8354,7 +8354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774488168573732278, guid: 8ccb8fab4494d144ea36947c6d767530, type: 3}
       propertyPath: youtubeTime
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4885295328574547386, guid: 8ccb8fab4494d144ea36947c6d767530, type: 3}
       propertyPath: m_AnchorMax.y

@@ -27,23 +27,16 @@ public class SceneManager : MonoBehaviour
     private float fadeOutTimer;
     private float countdownDuration = 3f;
     private float fadeOutDuration = 1f;
-    private string idleCameraBackgroudColor = "606060FF";
-    private string activateCameraBackgroudColor = "FFFFFFFF";
 
-    private WebCamTexture webcamTexture; // Reference to the WebCamTexture component
     private bool isRecording; // Flag to track if video recording is active
-    private bool cameraPlaying = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        //PrepareWebcam();
     }
 
     private void OnEnable()
     {
-        //PrepareWebcam();
-        //StartCoroutine(WaitSystemDoSomething());
     }
 
     private void OnDisable()
@@ -61,7 +54,6 @@ public class SceneManager : MonoBehaviour
         isCounting = false;
         isFadingOut = false;
         isRecording = false;       
-        cameraPlaying = false;
     }
 
     private IEnumerator WaitSystemDoSomething()
@@ -117,14 +109,6 @@ public class SceneManager : MonoBehaviour
 
     public void StartCountdown()
     {
-        //if (!webcamTexture)
-        //{
-        //    PrepareWebcam();
-        //}
-        //while (!webcamTexture.isPlaying && !cameraPlaying)
-        //{
-
-        //}
         startButton.SetActive(false);
         ResetTimer();
         isCounting = true;
@@ -157,23 +141,6 @@ public class SceneManager : MonoBehaviour
 
     }
 
-    private void DisplayImageFromCamera()
-    {
-        // Capture image from the user's camera and display it in the UI image component
-        if (webcamTexture != null && webcamTexture.isPlaying)
-        {
-            Color color;
-            ColorUtility.TryParseHtmlString(activateCameraBackgroudColor, out color);
-            imagePreview.GetComponent<Image>().color = color;
-            //Texture2D texture = new Texture2D(webcamTexture.width, webcamTexture.height);
-            //texture.SetPixels(webcamTexture.GetPixels());
-            //texture.Apply();
-            //imagePreview.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-            //webcamTexture.Stop();
-            cameraPreview.texture = webcamTexture;
-        }
-    }
-
     private void PlayMusic()
     {
         PlayFromUrlFieldStartingAt(youtubeTime);
@@ -186,26 +153,6 @@ public class SceneManager : MonoBehaviour
         isRecording = true;
     }
 
-    public void PrepareWebcam()
-    {
-        webcamTexture = new WebCamTexture();
-        if (!webcamTexture.isPlaying)
-        {
-            webcamTexture.Play();
-            cameraPlaying = true;
-        }
-
-        //WebCamDevice[] devices = WebCamTexture.devices;
-        //if (devices.Length > 0)
-        //{
-        //    webcamTexture = new WebCamTexture(devices[0].name);
-        //    if (!webcamTexture.isPlaying)
-        //    {
-        //        webcamTexture.Play();
-        //        cameraPlaying = true;
-        //    }
-        //}
-    }
 
     public void PlayFromUrlFieldStartingAt(int timePlaying)
     {
