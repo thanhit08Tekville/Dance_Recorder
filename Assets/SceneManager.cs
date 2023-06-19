@@ -13,8 +13,8 @@ public class SceneManager : MonoBehaviour
     private YoutubePlayer player;
 
     public GameObject startButton;
-    public Image imagePreview; // Reference to the UI image component
-    public RawImage cameraPreview;
+    //public Image imagePreview; // Reference to the UI image component
+    //public RawImage cameraPreview;
     public string youtubeURL;
     public int youtubeTime;
     public string musicClipName; // Name of the music clip to play
