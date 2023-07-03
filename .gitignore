@@ -10,7 +10,9 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
-/[Pp]ackages/com.github.homuler.mediapipe/Runtime/Plugins/
+/[Pp]ackages/com.github.homuler.mediapipe/Runtime/Plugins/iOS/
+/[Pp]ackages/com.github.homuler.mediapipe/Runtime/Plugins/Android/
+/[Pp]ackages/com.github.homuler.mediapipe/Runtime/Plugins/libmediapipe_c.dylib
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
