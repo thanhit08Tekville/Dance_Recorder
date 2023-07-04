@@ -13,10 +13,12 @@ public class SceneManager : MonoBehaviour
     private YoutubePlayer player;
 
     public GameObject startButton;
+    public GameObject pauseButton;
+    public GameObject stopButton;
     //public Image imagePreview; // Reference to the UI image component
     //public RawImage cameraPreview;
-    public string youtubeURL;
-    public int youtubeTime;
+    public List<string> youtubeURL = new List<string>();
+    public List<int> youtubeTime = new List<int>();
     public string musicClipName; // Name of the music clip to play
     public string videoSavePath; // File path to save the recorded video
 
@@ -30,9 +32,51 @@ public class SceneManager : MonoBehaviour
 
     private bool isRecording; // Flag to track if video recording is active
 
+    /// <summary>
+    /// Song youtube URL index
+    /// </summary>
+    public static int songIndex = 0;
+
+
+    public RawImage rawImage;
+    private BoxCollider2D rawImageCollider;
+
+    private void OnRawImageClick()
+    {
+        // Handle the raw image click event here
+        Debug.Log("Raw image clicked!");
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        // Add a click event listener to the raw image
+        rawImageCollider = rawImage.GetComponent<BoxCollider2D>();
+    }
+
+    private void LateUpdate()
+    {
+        var rectTransform = rawImage.GetComponent<RectTransform>();
+        if (rectTransform.rect.width == 0 || rectTransform.rect.height == 0)
+        {
+            return;
+        }
+
+        var (width, height) = GetBoundingBoxSize(rectTransform);
+        rawImageCollider.size = new Vector2(width, height);
+    }
+
+    private (float, float) GetBoundingBoxSize(RectTransform rectTransform)
+    {
+        var rect = rectTransform.rect;
+        var center = rect.center;
+        var topLeftRel = new Vector2(rect.xMin - center.x, rect.yMin - center.y);
+        var topRightRel = new Vector2(rect.xMax - center.x, rect.yMin - center.y);
+        var rotatedTopLeftRel = rectTransform.rotation * topLeftRel;
+        var rotatedTopRightRel = rectTransform.rotation * topRightRel;
+        var wMax = Mathf.Max(Mathf.Abs(rotatedTopLeftRel.x), Mathf.Abs(rotatedTopRightRel.x));
+        var hMax = Mathf.Max(Mathf.Abs(rotatedTopLeftRel.y), Mathf.Abs(rotatedTopRightRel.y));
+        return (2 * wMax, 2 * hMax);
     }
 
     private void OnEnable()
@@ -41,6 +85,12 @@ public class SceneManager : MonoBehaviour
 
     private void OnDisable()
     {
+        ResetScene();
+    }
+
+    public void switchSong(int iSongIndex)
+    {
+        songIndex = iSongIndex;
         ResetScene();
     }
 
@@ -100,11 +150,25 @@ public class SceneManager : MonoBehaviour
             }
         }
 
-        if (isRecording)
+        if (isRecording && !isFadingOut)
         {
             // Continue recording video
             // Add your video recording logic here
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                //Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+                if (rawImageCollider.OverlapPoint(Input.mousePosition))
+                {
+                    // Handle the raw image click event here
+                    Debug.Log("Raw image clicked!");
+                    PauseMusic();
+                }
+            }
         }
+
+        
     }
 
     public void StartCountdown()
@@ -113,6 +177,35 @@ public class SceneManager : MonoBehaviour
         ResetTimer();
         isCounting = true;
         //DisplayImageFromCamera();
+    }
+
+    public void ResumMusic()
+    {
+        pauseButton.SetActive(false);
+        stopButton.SetActive(false);
+        player.PlayPause();
+    }
+
+    public void PauseMusic()
+    {
+        if (isCounting)
+        {
+            ResetScene();
+        } else
+        {
+            pauseButton.SetActive(true);
+            stopButton.SetActive(true);
+            player.Pause();
+        }
+
+    }
+
+    public void StopMusic()
+    {
+        pauseButton.SetActive(false);
+        stopButton.SetActive(false);
+        StopVideoRecording();
+        ResetScene();
     }
 
     private void PerformAction()
@@ -143,7 +236,7 @@ public class SceneManager : MonoBehaviour
 
     private void PlayMusic()
     {
-        PlayFromUrlFieldStartingAt(youtubeTime);
+        PlayFromUrlFieldStartingAt(youtubeTime[songIndex]);
     }
 
     private void StartVideoRecording()
@@ -153,12 +246,34 @@ public class SceneManager : MonoBehaviour
         isRecording = true;
     }
 
+    private void PauseVideoRecording()
+    {
+        // Start recording the video
+        // Add your video recording logic here
+        isRecording = false;
+    }
+
+    private void StopVideoRecording()
+    {
+        // Start recording the video
+        // Add your video recording logic here
+        isRecording = false;
+    }
+
 
     public void PlayFromUrlFieldStartingAt(int timePlaying)
     {
         Reset();
         //Simple call to start playing starting from second. in this case 10 seconds
-        player.Play(youtubeURL, timePlaying);
+        if (timePlaying == 0)
+        {
+            player.Play(youtubeURL[songIndex]);
+        }
+        else
+        {
+            player.Play(youtubeURL[songIndex], timePlaying);
+        }
+        
     }
 
     private void Reset()
